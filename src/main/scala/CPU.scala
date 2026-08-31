@@ -54,4 +54,6 @@ class CPU extends MultiIOModule {
   /**
     TODO: Your code here
     */
+
+  ID.io.instruction :=  IF.io.instruction 
 }

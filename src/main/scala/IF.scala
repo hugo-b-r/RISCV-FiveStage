@@ -23,8 +23,8 @@ class InstructionFetch extends MultiIOModule {
     */
   val io = IO(
     new Bundle {
-      val IMEMsetup = Input(new IMEMsetupSignals)
-      val PC = Output(UInt())
+      // val IMEMsetup = Input(new IMEMsetupSignals)
+      val PC = Output(UInt(32.W))
       val instruction = Output(new Instruction)
     })
 
@@ -50,6 +50,7 @@ class InstructionFetch extends MultiIOModule {
   PC := PC + 4.U
 
   val instruction = Wire(new Instruction)
+  instruction := io.instruction
   io.instruction := IMEM.io.instruction.asTypeOf(new Instruction)
 
 

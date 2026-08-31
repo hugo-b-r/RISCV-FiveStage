@@ -25,8 +25,8 @@ class IFBarrier extends MultiIOModule {
     new Bundle {
       val PCIn = Input(UInt(32.W))
       val PCOut = Output(UInt(32.W))
-      val instructionIn = Input(UInt(32.W))
-      val instructionOut = Output(UInt(32.W))
+      val instructionIn = Input(new Instruction)
+      val instructionOut = Output(new Instruction)
     }
   )
 

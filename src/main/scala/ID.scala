@@ -1,7 +1,7 @@
 package FiveStage
 import chisel3._
 import chisel3.util.{ BitPat, MuxCase }
-import chisel3.experimental.MultiIOModule
+import chisel3.experimental.{MultiIOModule, _}
 
 
 class InstructionDecode extends MultiIOModule {
@@ -18,10 +18,24 @@ class InstructionDecode extends MultiIOModule {
 
   val io = IO(
     new Bundle {
-     val instruction = Input(new Instruction)
-     val PCIn = Input(UInt(32.W))
-     val PCOut = Output(UInt(32.W))
-
+     val instructionIn         = Input(new Instruction)
+     val PCIn                  = Input(UInt(32.W))
+     val delayedControlSignals = Input(new ControlSignals)
+     val delayedWriteData      = Input(UInt(32.W))
+     val delayedInstruction   = Input(new Instruction)
+     
+     val PCOut             = Output(UInt(32.W))
+     val aluOpOut          = Output(UInt(4.W))
+     val controlSignalsOut = Output(new ControlSignals)
+     val branchTypeOut     = Output(UInt(3.W))
+     val op1SelectOut      = Output(UInt(1.W))
+     val op2SelectOut      = Output(UInt(1.W))
+     val immTypeOut        = Output(UInt(3.W))
+     val val1Out           = Output(UInt(32.W))
+     val val2Out           = Output(UInt(32.W))
+     val instructionOut    = Output(new Instruction)
+     val immediateOut      = Output(UInt(32.W))
+    
      // val inWriteAddress = Input(UInt(32.W))
      // val inWriteData = Input(UInt(32.W))
       /**
@@ -32,6 +46,7 @@ class InstructionDecode extends MultiIOModule {
 
   val registers = Module(new Registers)
   val decoder   = Module(new Decoder).io
+  val immediateDecoder = Module(new ImmediateDecoder).io
 
 
   /**
@@ -45,15 +60,35 @@ class InstructionDecode extends MultiIOModule {
   /**
     * TODO: Your code here.
     */
-  registers.io.readAddress1 := decoder.op1Select
-  registers.io.readAddress2 := decoder.op2Select
-  registers.io.writeEnable  := decoder.controlSignals.regWrite
-  registers.io.writeAddress := 0.U
-  registers.io.writeData    := 0.U
+  registers.io.readAddress1 := io.instructionIn.registerRs1
+  registers.io.readAddress2 := io.instructionIn.registerRs2
+  registers.io.writeEnable  := io.delayedControlSignals.regWrite
+  registers.io.writeAddress := io.delayedInstruction.registerRd
+  registers.io.writeData    := io.delayedWriteData
+
+  io.controlSignalsOut := decoder.controlSignals
+  io.branchTypeOut := decoder.branchType
+  io.op1SelectOut := decoder.op1Select
+  io.op2SelectOut := decoder.op2Select
+  io.immTypeOut := decoder.immType
+  io.aluOpOut := decoder.ALUop
   // registers.io.writeAddress := io.inWriteAddress
   // registers.io.writeData    := io.inWriteData
+  //
+  io.val1Out := registers.io.readData1
+  io.val2Out := registers.io.readData2
 
-  decoder.instruction := io.instruction
+  decoder.instruction := io.instructionIn
+  io.instructionOut := io.instructionIn
 
   io.PCOut := io.PCIn
+
+  io.aluOpOut := decoder.ALUop
+
+  immediateDecoder.instruction := io.instructionIn
+  immediateDecoder.immType := decoder.immType
+  io.immediateOut := immediateDecoder.immediate
+
+  dontTouch(io.PCIn)
+  dontTouch(io.PCOut)
 }

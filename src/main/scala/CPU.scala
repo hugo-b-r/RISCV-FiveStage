@@ -22,14 +22,15 @@ class CPU extends MultiIOModule {
     You need to create the classes for these yourself
     */
   val IFBarrier  = Module(new IFBarrier).io
-  // val IDBarrier  = Module(new IDBarrier).io
-  // val EXBarrier  = Module(new EXBarrier).io
-  // val MEMBarrier = Module(new MEMBarrier).io
+  val IDBarrier  = Module(new IDBarrier).io
+  val EXBarrier  = Module(new EXBarrier).io
+  val MEMBarrier = Module(new MEMBarrier).io
 
   val ID  = Module(new InstructionDecode)
   val IF  = Module(new InstructionFetch)
-  // val EX  = Module(new Execute)
+  val EX  = Module(new Execute)
   val MEM = Module(new MemoryFetch)
+  val WB = Module(new WriteBack)
   // val WB  = Module(new Execute) (You may not need this one?)
 
 
@@ -51,13 +52,73 @@ class CPU extends MultiIOModule {
   testHarness.currentPC  := IF.testHarness.PC
 
 
-  /**
-    TODO: Your code here
-    */
 
+  // IFBarrier first barrier
   IFBarrier.instructionIn := IF.io.instruction
-  ID.io.instruction := IFBarrier.instructionOut
-
   IFBarrier.PCIn := IF.io.PC
+
+  
   ID.io.PCIn := IFBarrier.PCOut
+  ID.io.instructionIn := IFBarrier.instructionOut
+
+
+  // IDBarrier second barrier
+  IDBarrier.PCIn := ID.io.PCOut
+  IDBarrier.aluOpIn := ID.io.aluOpOut
+  IDBarrier.controlSignalsIn := ID.io.controlSignalsOut
+  IDBarrier.branchTypeIn := ID.io.branchTypeOut
+  IDBarrier.op1SelectIn := ID.io.op1SelectOut
+  IDBarrier.op2SelectIn := ID.io.op2SelectOut
+  IDBarrier.immTypeIn := ID.io.immTypeOut
+  IDBarrier.val1In := ID.io.val1Out
+  IDBarrier.val2In := ID.io.val2Out
+  IDBarrier.immediateIn := ID.io.immediateOut
+  IDBarrier.instructionIn := ID.io.instructionOut
+
+
+  EX.io.PCIn := IDBarrier.PCOut
+  EX.io.aluOpIn := IDBarrier.aluOpOut
+  EX.io.controlSignalsIn := IDBarrier.controlSignalsOut
+  EX.io.branchTypeIn := IDBarrier.branchTypeOut
+  EX.io.op1SelectIn := IDBarrier.op1SelectOut
+  EX.io.op2SelectIn := IDBarrier.op2SelectOut
+  EX.io.immTypeIn := IDBarrier.immTypeOut
+  EX.io.val1In := IDBarrier.val1Out
+  EX.io.val2In := IDBarrier.val2Out
+  EX.io.immediateIn := IDBarrier.immediateOut
+  EX.io.instructionIn := IDBarrier.instructionOut
+
+
+  // EXBarrier connections
+  EXBarrier.PCIn := EX.io.PCOut
+  EXBarrier.resultIn := EX.io.ALUres
+  EXBarrier.val2In := EX.io.val2Out
+  EXBarrier.instructionIn := EX.io.instructionOut
+  EXBarrier.controlSignalsIn := EX.io.controlSignalsOut
+
+  
+  MEM.io.aluResIn := EXBarrier.aluResOut
+  MEM.io.instructionIn := EXBarrier.instructionOut
+  MEM.io.dataAddressIn := EXBarrier.dataAddressOut
+  MEM.io.controlSignals := EXBarrier.controlSignalsOut
+
+  MEMBarrier.ALUresIn := MEM.io.aluResOut
+  MEMBarrier.readDataIn := MEM.io.readDataOut
+  MEMBarrier.instructionIn := MEM.io.instructionOut
+  MEMBarrier.controlSignalsIn := MEM.io.controlSignalsOut
+
+  WB.io.instructionIn := MEMBarrier.instructionOut
+  WB.io.ALUresIn := MEMBarrier.ALUresOut
+  WB.io.dataMemoryIn := MEMBarrier.readDataOut
+  WB.io.controlSignalsIn:= MEMBarrier.controlSignalsOut
+
+  IF.io.controlSignalsIn := EXBarrier.controlSignalsOut
+  IF.io.newPC := EXBarrier.PCOut
+    
+  ID.io.delayedControlSignals := WB.io.controlSignalsOut
+  ID.io.delayedWriteData := WB.io.dataOut
+  ID.io.delayedInstruction := WB.io.instructionOut
+  
+  
+  // MEMBarrier connections
 }

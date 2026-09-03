@@ -1,6 +1,6 @@
 package FiveStage
 import chisel3._
-import chisel3.experimental.MultiIOModule
+import chisel3.experimental.{MultiIOModule, dontTouch}
 
 class InstructionFetch extends MultiIOModule {
 
@@ -23,7 +23,9 @@ class InstructionFetch extends MultiIOModule {
     */
   val io = IO(
     new Bundle {
-      // val IMEMsetup = Input(new IMEMsetupSignals)
+      val newPC = Input(UInt(32.W))
+      val controlSignalsIn = Input(new ControlSignals)
+      
       val PC = Output(UInt(32.W))
       val instruction = Output(new Instruction)
     })
@@ -47,7 +49,13 @@ class InstructionFetch extends MultiIOModule {
   io.PC := PC
   IMEM.io.instructionAddress := PC
 
-  PC := PC + 4.U
+  val newPC = Wire(UInt(32.W))
+  newPC := io.newPC
+  when (io.controlSignalsIn.branch || io.controlSignalsIn.jump) {
+    PC := newPC
+  } .otherwise {
+    PC := PC + 4.U
+  }
 
   val instruction = Wire(new Instruction)
   instruction := io.instruction
@@ -61,4 +69,6 @@ class InstructionFetch extends MultiIOModule {
     PC := 0.U
     instruction := Instruction.NOP
   }
+  dontTouch(io.PC)
+  dontTouch(io.newPC)
 }

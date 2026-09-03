@@ -4,7 +4,7 @@ import chisel3._
 import chisel3.util._
 import chisel3.core.Input
 import chisel3.iotesters.PeekPokeTester
-
+// import circt.stage.{ChiselStage, ChiselStage$}
 
 /**
   * The top level module. You do not have to change anything here, 
@@ -73,3 +73,21 @@ class Tile() extends Module{
 
 
 
+
+object Tile extends App {
+  chisel3.Driver.execute(args, () => new Tile)
+  // ChiselStage.emitSystemVerilog(new Tile(), Array("--target-dir", "generated"))
+}
+// object VerilogGenerator extends App {
+//   // Generate Verilog as a String
+//   val verilogCode: String = ChiselStage.emitVerilog(new MyModule)
+  
+//   // Write the Verilog code to a file
+//   import java.io.{File, PrintWriter}
+//   val outputFile = new File("MyModule.v")
+//   val writer = new PrintWriter(outputFile)
+//   writer.write(verilogCode)
+//   writer.close()
+  
+//   println(s"Verilog generated and saved to ${outputFile.getAbsolutePath}")
+// }

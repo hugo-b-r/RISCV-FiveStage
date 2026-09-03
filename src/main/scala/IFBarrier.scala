@@ -36,7 +36,9 @@ class IFBarrier extends MultiIOModule {
 
   io.PCOut := regPC
 
-  io.instructionOut := io.instructionIn
+  val instructionWire = Wire(new Instruction)
+  instructionWire :=  io.instructionIn
+  io.instructionOut := instructionWire
   
   
 
@@ -61,5 +63,8 @@ class IFBarrier extends MultiIOModule {
   /**
     TODO: Your code here
     */
+
+  dontTouch(io.PCIn)
+  dontTouch(io.PCIn)
 
 }

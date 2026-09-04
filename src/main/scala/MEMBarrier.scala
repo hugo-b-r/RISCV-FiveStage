@@ -35,21 +35,23 @@ class MEMBarrier extends MultiIOModule {
     }
   )
 
-  val regData = RegInit(0.U(32.W))
+  // val regData = RegInit(0.U(32.W))
   val instruction = RegInit(0.U.asTypeOf(new Instruction))
   val controlSignals = RegInit(0.U.asTypeOf(new ControlSignals))
   val aluRes = RegInit(0.U(32.W))
 
   
-  regData := io.readDataIn
+  // regData := io.readDataIn
   instruction := io.instructionIn
   controlSignals := io.controlSignalsIn
   aluRes := io.ALUresIn
 
   io.ALUresOut := aluRes
-  io.readDataOut := regData
   io.instructionOut := instruction
   io.controlSignalsOut := controlSignals
+
+
+  io.readDataOut := io.readDataIn
 
 
   

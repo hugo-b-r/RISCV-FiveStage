@@ -46,6 +46,7 @@ class Execute extends MultiIOModule {
      val instructionOut    = Output(new Instruction)
      val immediateOut      = Output(UInt(32.W))
      val ALUres            = Output(UInt(32.W))
+     val takeBranch        = Output(Bool())
 
 
      // val inWriteAddress = Input(UInt(32.W))
@@ -60,11 +61,43 @@ class Execute extends MultiIOModule {
   // ALU
   val ALU = Module(new ALU).io
 
-  ALU.op1 := io.val1In
-  when (io.op2SelectIn === imm) {
+  when (io.op1SelectIn === Op1Select.rs1) {
+    ALU.op1 := io.val1In
+  } .elsewhen(io.op1SelectIn === Op1Select.PC) {
+    ALU.op1 := io.PCIn
+  } .otherwise {
+    ALU.op1 := 0.U
+  }
+
+  
+  when (io.controlSignalsIn.jump && io.aluOpIn === Op2Select.DC) {
+    ALU.op2 := 4.U
+  } .elsewhen (io.op2SelectIn === Op2Select.rs2) {
+    ALU.op2 := io.val2In
+  } .elsewhen (io.op2SelectIn === Op2Select.imm) {
     ALU.op2 := io.immediateIn
   } .otherwise {
-    ALU.op2 := io.val2In
+    ALU.op2 := 0.U
+  }
+
+  when (!io.controlSignalsIn.branch) {
+    io.takeBranch := false.B
+  } .otherwise {
+    when (io.branchTypeIn === branchType.beq) {
+      io.takeBranch := ALU.aluResult === 0.U
+    } .elsewhen(io.branchTypeIn === branchType.neq) {
+      io.takeBranch := ALU.aluResult != 0.U
+    } .elsewhen(io.branchTypeIn === branchType.lt) {
+      io.takeBranch := ALU.aluResult.asSInt < 0.S
+    } .elsewhen(io.branchTypeIn === branchType.gte) {
+      io.takeBranch := ALU.aluResult.asSInt >= 0.S
+    } .elsewhen(io.branchTypeIn === branchType.ltu) {
+      io.takeBranch := ALU.aluResult.asUInt < 0.U
+    } .elsewhen(io.branchTypeIn === branchType.gteu) {
+      io.takeBranch := ALU.aluResult.asUInt >= 0.U
+    } .otherwise {
+      io.takeBranch := false.B
+    }
   }
 
   ALU.aluOp := io.aluOpIn
@@ -78,8 +111,16 @@ class Execute extends MultiIOModule {
   instructionWire :=  io.instructionIn
   io.instructionOut := instructionWire
 
-   // to change when implementing the jumb and branch and stuff
-  io.PCOut             := io.PCIn + io.immediateIn
+  // handling PC operations
+  when(io.controlSignalsIn.jump && io.immTypeIn === ImmFormat.ITYPE) { 
+    // use the readValue 1 to create the next PC value
+    io.PCOut := io.val1In + io.immediateIn
+  } .elsewhen (io.controlSignalsIn.jump || io.controlSignalsIn.branch)  {
+    io.PCOut := io.PCIn + io.immediateIn
+  } .otherwise {
+    io.PCOut := io.PCIn
+  }
+
   io.aluOpOut          := io.aluOpIn
   io.controlSignalsOut := io.controlSignalsIn
   io.branchTypeOut     := io.branchTypeIn

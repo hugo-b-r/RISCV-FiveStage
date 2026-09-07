@@ -95,6 +95,7 @@ class CPU extends MultiIOModule {
   EXBarrier.val2In := EX.io.val2Out
   EXBarrier.instructionIn := EX.io.instructionOut
   EXBarrier.controlSignalsIn := EX.io.controlSignalsOut
+  EXBarrier.takeBranchIn := EX.io.takeBranch
 
   
   MEM.io.aluResIn := EXBarrier.aluResOut
@@ -114,10 +115,12 @@ class CPU extends MultiIOModule {
 
   IF.io.controlSignalsIn := EXBarrier.controlSignalsOut
   IF.io.newPC := EXBarrier.PCOut
+  IF.io.takeBranchIn := EXBarrier.takeBranchOut
     
   ID.io.delayedControlSignals := WB.io.controlSignalsOut
   ID.io.delayedWriteData := WB.io.dataOut
   ID.io.delayedInstruction := WB.io.instructionOut
+  
   
   
   // MEMBarrier connections

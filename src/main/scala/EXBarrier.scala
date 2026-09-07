@@ -28,12 +28,14 @@ class EXBarrier extends MultiIOModule {
       val val2In = Input(UInt(32.W))
       val instructionIn = Input(new Instruction)
       val controlSignalsIn = Input(new ControlSignals)
+      val takeBranchIn = Input(Bool())
 
       val PCOut = Output(UInt(32.W))
       val aluResOut = Output(UInt(32.W))
       val dataAddressOut = Output(UInt(32.W))
       val instructionOut = Output(new Instruction)
       val controlSignalsOut = Output(new ControlSignals)
+      val takeBranchOut = Output(Bool())
     }
   )
 
@@ -42,19 +44,21 @@ class EXBarrier extends MultiIOModule {
   val op2 = RegInit(0.U(32.W))
   val instruction = RegInit(0.U.asTypeOf(new Instruction))
   val regControlSignals = RegInit(0.U.asTypeOf(new ControlSignals))
+  val takeBranch = RegInit(false.B)
   
   regPC := io.PCIn
   result := io.resultIn
   op2 := io.val2In
   instruction := io.instructionIn
   regControlSignals := io.controlSignalsIn
+  takeBranch := io.takeBranchIn
   
   io.PCOut := regPC
   io.aluResOut := result
   io.dataAddressOut := op2
   io.instructionOut := instruction
-
   io.controlSignalsOut := regControlSignals
+  io.takeBranchOut := takeBranch
   
   
 

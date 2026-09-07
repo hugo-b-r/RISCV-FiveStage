@@ -67,7 +67,7 @@ class Decoder() extends Module {
     SRLI   -> List(Y,        N,       N,        N,       N,    branchType.DC, rs1,       imm,              ITYPE, ALUOps.SRL),
     SLLI   -> List(Y,        N,       N,        N,       N,    branchType.DC, rs1,       imm,              ITYPE, ALUOps.SLL),
 
-    LUI    -> List(Y,        N,       N,        N,       N,    branchType.DC, rs1,       imm,              UTYPE, ALUOps.DC),
+    LUI    -> List(Y,        N,       N,        N,       N,    branchType.DC, rs1,       imm,              UTYPE, ALUOps.ADD),
     AUIPC  -> List(Y,        N,       N,        N,       N,    branchType.DC, rs1,       imm,              UTYPE, ALUOps.DC),
 
     LW     -> List(Y,        Y,       N,        N,       N,    branchType.DC, rs1,       imm,              UTYPE, ALUOps.ADD),

@@ -24,15 +24,21 @@ class IFBarrier extends MultiIOModule {
   val io = IO(
     new Bundle {
       val PCIn = Input(UInt(32.W))
-      val PCOut = Output(UInt(32.W))
+      val freezeIn = Input(Bool())
       val instructionIn = Input(new Instruction)
+
+      val PCOut = Output(UInt(32.W))
       val instructionOut = Output(new Instruction)
     }
   )
 
   val regPC = RegInit(0.U(32.W))
 
-  regPC := io.PCIn
+  when (io.freezeIn) {
+    regPC := regPC
+  } .otherwise {
+    regPC := io.PCIn
+  }
 
   io.PCOut := regPC
 

@@ -23,14 +23,15 @@ class MEMBarrier extends MultiIOModule {
 
   val io = IO(
     new Bundle {
-      val ALUresIn = Input(UInt(32.W))
-      val readDataIn = Input(UInt(32.W))
-      val instructionIn = Input(new Instruction)
+      val ALUresIn         = Input(UInt(32.W))
+      val readDataIn       = Input(UInt(32.W))
+      val instructionIn    = Input(new Instruction)
       val controlSignalsIn = Input(new ControlSignals)
+      val freezeIn         = Input(Bool())
 
-      val ALUresOut = Output(UInt(32.W))
-      val readDataOut = Output(UInt(32.W))
-      val instructionOut = Output(new Instruction)
+      val ALUresOut         = Output(UInt(32.W))
+      val readDataOut       = Output(UInt(32.W))
+      val instructionOut    = Output(new Instruction)
       val controlSignalsOut = Output(new ControlSignals)
     }
   )
@@ -40,9 +41,22 @@ class MEMBarrier extends MultiIOModule {
   val controlSignals = RegInit(0.U.asTypeOf(new ControlSignals))
   val aluRes = RegInit(0.U(32.W))
 
+  import lookup._
+  import Op1Select._
+  import Op2Select._
+  import branchType._
+  import ImmFormat._
+
+  // val N = 0.asUInt(1.W)
+  // val Y = 1.asUInt(1.W)
+  // val NOP = List(N, N, N, N, N, branchType.DC, rs1, rs2, ImmFormat.DC, ALUOps.DC)
   
   // regData := io.readDataIn
-  instruction := io.instructionIn
+  when (io.freezeIn) {
+    instruction := 0.U.asTypeOf(new Instruction)
+  } .otherwise {
+    instruction := io.instructionIn
+  }
   controlSignals := io.controlSignalsIn
   aluRes := io.ALUresIn
 

@@ -34,7 +34,8 @@ class IDBarrier extends MultiIOModule {
      val val2In           = Input(UInt(32.W))
      val instructionIn    = Input(new Instruction)
      val immediateIn      = Input(UInt(32.W))
-
+     val freezeIn         = Input(Bool())
+     
 
      val PCOut             = Output(UInt(32.W))
      val aluOpOut          = Output(UInt(4.W))
@@ -62,18 +63,31 @@ class IDBarrier extends MultiIOModule {
   val immediate           = RegInit(0.U(32.W))
   val instruction         = RegInit(0.U.asTypeOf(new Instruction))
 
-  
-  regPC                  := io.PCIn
-  regAluOp               := io.aluOpIn
-  regControlSignals      := io.controlSignalsIn
-  branchType             := io.branchTypeIn
-  op1Select              := io.op1SelectIn
-  op2Select              := io.op2SelectIn
-  immType                := io.immTypeIn
-  val1                   := io.val1In
-  val2                   := io.val2In
-  immediate              := io.immediateIn
-  instruction            := io.instructionIn
+  when (io.freezeIn) {
+    regPC                  := regPC
+    regAluOp               := regAluOp
+    regControlSignals      := regControlSignals
+    branchType             := branchType
+    op1Select              := op1Select
+    op2Select              := op2Select
+    immType                := immType
+    val1                   := val1
+    val2                   := val2
+    immediate              := immediate
+    instruction            := instruction
+  } .otherwise {
+    regPC                  := io.PCIn
+    regAluOp               := io.aluOpIn
+    regControlSignals      := io.controlSignalsIn
+    branchType             := io.branchTypeIn
+    op1Select              := io.op1SelectIn
+    op2Select              := io.op2SelectIn
+    immType                := io.immTypeIn
+    val1                   := io.val1In
+    val2                   := io.val2In
+    immediate              := io.immediateIn
+    instruction            := io.instructionIn
+  }
 
   
   io.PCOut               := regPC

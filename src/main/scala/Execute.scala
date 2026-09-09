@@ -34,6 +34,15 @@ class Execute extends MultiIOModule {
      val immediateIn      = Input(UInt(32.W))
 
 
+     val instructionMemIn    = Input(new Instruction)
+     val rdAddressMemIn      = Input(UInt(5.W))
+     val rdAddressWbIn       = Input(UInt(5.W))
+     val aluValWbIn          = Input(UInt(32.W))
+     val memResWbIn          = Input(UInt(32.W))
+     val aluResMemIn         = Input(UInt(32.W))
+     val val2MemIn           = Input(UInt(32.W))
+
+
      val PCOut             = Output(UInt(32.W))
      val aluOpOut          = Output(UInt(4.W))
      val controlSignalsOut = Output(new ControlSignals)
@@ -47,6 +56,7 @@ class Execute extends MultiIOModule {
      val immediateOut      = Output(UInt(32.W))
      val ALUres            = Output(UInt(32.W))
      val takeBranch        = Output(Bool())
+     val freezeOut         = Output(Bool())
 
 
      // val inWriteAddress = Input(UInt(32.W))
@@ -57,12 +67,28 @@ class Execute extends MultiIOModule {
     }
   )
 
-
+  val forwarder = Module(new Forwarder).io
+  
   // ALU
   val ALU = Module(new ALU).io
 
+  forwarder.instructionMemIn  := io.instructionMemIn
+  forwarder.rdAddressMemIn    := io.rdAddressMemIn
+  forwarder.rdAddressWbIn     := io.rdAddressWbIn
+  forwarder.rs1AddressExIn    := io.instructionIn.registerRs1
+  forwarder.rs2AddressExIn    := io.instructionIn.registerRs2
+  forwarder.aluValWbIn        := io.aluValWbIn
+  forwarder.memResWbIn        := io.memResWbIn
+  forwarder.aluResMemIn       := io.aluResMemIn
+  forwarder.val2MemIn         := io.val2MemIn
+
+  forwarder.val1In := io.val1In
+  forwarder.val2In := io.val2In
+
+  io.freezeOut := forwarder.freezeOut
+
   when (io.op1SelectIn === Op1Select.rs1) {
-    ALU.op1 := io.val1In
+    ALU.op1 := forwarder.aluOp1Out
   } .elsewhen(io.op1SelectIn === Op1Select.PC) {
     ALU.op1 := io.PCIn
   } .otherwise {
@@ -73,7 +99,7 @@ class Execute extends MultiIOModule {
   when (io.controlSignalsIn.jump && io.aluOpIn === Op2Select.DC) {
     ALU.op2 := 4.U
   } .elsewhen (io.op2SelectIn === Op2Select.rs2) {
-    ALU.op2 := io.val2In
+    ALU.op2 := forwarder.aluOp2Out
   } .elsewhen (io.op2SelectIn === Op2Select.imm) {
     ALU.op2 := io.immediateIn
   } .otherwise {

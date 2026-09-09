@@ -30,8 +30,7 @@ class CPU extends MultiIOModule {
   val IF  = Module(new InstructionFetch)
   val EX  = Module(new Execute)
   val MEM = Module(new MemoryFetch)
-  val WB = Module(new WriteBack)
-  // val WB  = Module(new Execute) (You may not need this one?)
+  // val WB = Module(new WriteBack)
 
 
   /**
@@ -89,6 +88,7 @@ class CPU extends MultiIOModule {
   EX.io.instructionIn := IDBarrier.instructionOut
 
 
+
   // EXBarrier connections
   EXBarrier.PCIn := EX.io.PCOut
   EXBarrier.resultIn := EX.io.ALUres
@@ -108,20 +108,37 @@ class CPU extends MultiIOModule {
   MEMBarrier.instructionIn := MEM.io.instructionOut
   MEMBarrier.controlSignalsIn := MEM.io.controlSignalsOut
 
-  WB.io.instructionIn := MEMBarrier.instructionOut
-  WB.io.ALUresIn := MEMBarrier.ALUresOut
-  WB.io.dataMemoryIn := MEMBarrier.readDataOut
-  WB.io.controlSignalsIn:= MEMBarrier.controlSignalsOut
+  // WB.io.instructionIn := MEMBarrier.instructionOut
+  // WB.io.ALUresIn := MEMBarrier.ALUresOut
+  // WB.io.dataMemoryIn := MEMBarrier.readDataOut
+  // WB.io.controlSignalsIn:= MEMBarrier.controlSignalsOut
 
   IF.io.controlSignalsIn := EXBarrier.controlSignalsOut
   IF.io.newPC := EXBarrier.PCOut
   IF.io.takeBranchIn := EXBarrier.takeBranchOut
     
-  ID.io.delayedControlSignals := WB.io.controlSignalsOut
-  ID.io.delayedWriteData := WB.io.dataOut
-  ID.io.delayedInstruction := WB.io.instructionOut
-  
-  
+  ID.io.delayedControlSignals := MEMBarrier.controlSignalsOut
+  when (MEMBarrier.controlSignalsOut.memRead) {
+    ID.io.delayedWriteData := MEMBarrier.readDataOut
+  } .otherwise {
+    ID.io.delayedWriteData := MEMBarrier.ALUresOut
+  }
+  ID.io.delayedInstruction := MEMBarrier.instructionOut
+
+  EX.io.instructionMemIn    := EXBarrier.instructionOut
+  EX.io.rdAddressMemIn      := EXBarrier.instructionOut.registerRd
+  EX.io.rdAddressWbIn       := MEMBarrier.instructionOut.registerRd
+  EX.io.aluValWbIn          := MEMBarrier.ALUresOut
+  EX.io.memResWbIn          := MEMBarrier.readDataOut
+  EX.io.aluResMemIn         := MEM.io.aluResOut
+  EX.io.val2MemIn           := MEM.io.readDataOut
+
+
+  IFBarrier.freezeIn := EX.io.freezeOut
+  IDBarrier.freezeIn := EX.io.freezeOut
+  MEMBarrier.freezeIn := EX.io.freezeOut
+
+  // WB
   
   // MEMBarrier connections
 }

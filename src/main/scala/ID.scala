@@ -75,8 +75,19 @@ class InstructionDecode extends MultiIOModule {
   // registers.io.writeAddress := io.inWriteAddress
   // registers.io.writeData    := io.inWriteData
   //
-  io.val1Out := registers.io.readData1
-  io.val2Out := registers.io.readData2
+  // Forwarding
+  when (io.delayedInstruction.registerRd === io.instructionIn.registerRs1 && io.delayedControlSignals.regWrite) {
+    // forwarding of wb data
+    io.val1Out := io.delayedWriteData
+  } .otherwise {
+    io.val1Out := registers.io.readData1
+  }
+  when (io.delayedInstruction.registerRd === io.instructionIn.registerRs2 && io.delayedControlSignals.regWrite) {
+    // forwarding of wb data
+    io.val2Out := io.delayedWriteData
+  } .otherwise {
+    io.val2Out := registers.io.readData2
+  }
 
   decoder.instruction := io.instructionIn
   io.instructionOut := io.instructionIn

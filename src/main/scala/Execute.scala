@@ -112,7 +112,7 @@ class Execute extends MultiIOModule {
     when (io.branchTypeIn === branchType.beq) {
       io.takeBranch := ALU.aluResult === 0.U
     } .elsewhen(io.branchTypeIn === branchType.neq) {
-      io.takeBranch := ALU.aluResult != 0.U
+      io.takeBranch := ALU.aluResult =/= 0.U
     } .elsewhen(io.branchTypeIn === branchType.lt) {
       io.takeBranch := ALU.aluResult.asSInt < 0.S
     } .elsewhen(io.branchTypeIn === branchType.gte) {

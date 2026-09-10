@@ -47,13 +47,11 @@ class MEMBarrier extends MultiIOModule {
   import branchType._
   import ImmFormat._
 
-  // val N = 0.asUInt(1.W)
-  // val Y = 1.asUInt(1.W)
-  // val NOP = List(N, N, N, N, N, branchType.DC, rs1, rs2, ImmFormat.DC, ALUOps.DC)
   
   // regData := io.readDataIn
   when (io.freezeIn) {
-    instruction := 0.U.asTypeOf(new Instruction)
+    // instruction := 0.U.asTypeOf(new Instruction)
+    instruction := Instruction.NOP
   } .otherwise {
     instruction := io.instructionIn
   }

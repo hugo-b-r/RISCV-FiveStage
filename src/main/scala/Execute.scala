@@ -21,42 +21,44 @@ class Execute extends MultiIOModule {
   val io = IO(
     new Bundle {
 
-     val PCIn             = Input(UInt(32.W))
-     val aluOpIn          = Input(UInt(4.W))
-     val controlSignalsIn = Input(new ControlSignals)
-     val branchTypeIn     = Input(UInt(3.W))
-     val op1SelectIn      = Input(UInt(1.W))
-     val op2SelectIn      = Input(UInt(1.W))
-     val immTypeIn        = Input(UInt(3.W))
-     val val1In           = Input(UInt(32.W))
-     val val2In           = Input(UInt(32.W))
-     val instructionIn    = Input(new Instruction)
-     val immediateIn      = Input(UInt(32.W))
+      val PCIn             = Input(UInt(32.W))
+      val aluOpIn          = Input(UInt(4.W))
+      val controlSignalsIn = Input(new ControlSignals)
+      val branchTypeIn     = Input(UInt(3.W))
+      val op1SelectIn      = Input(UInt(1.W))
+      val op2SelectIn      = Input(UInt(1.W))
+      val immTypeIn        = Input(UInt(3.W))
+      val val1In           = Input(UInt(32.W))
+      val val2In           = Input(UInt(32.W))
+      val instructionIn    = Input(new Instruction)
+      val immediateIn      = Input(UInt(32.W))
 
 
-     val instructionMemIn    = Input(new Instruction)
-     val rdAddressMemIn      = Input(UInt(5.W))
-     val rdAddressWbIn       = Input(UInt(5.W))
-     val aluValWbIn          = Input(UInt(32.W))
-     val memResWbIn          = Input(UInt(32.W))
-     val aluResMemIn         = Input(UInt(32.W))
-     val val2MemIn           = Input(UInt(32.W))
+      val instructionMemIn    = Input(new Instruction)
+      val rdAddressMemIn      = Input(UInt(5.W))
+      val rdAddressWbIn       = Input(UInt(5.W))
+      val aluValWbIn          = Input(UInt(32.W))
+      val memResWbIn          = Input(UInt(32.W))
+      val aluResMemIn         = Input(UInt(32.W))
+      val val2MemIn           = Input(UInt(32.W))
+      val controlSignalsMemIn = Input(new ControlSignals)
+      val controlSignalsWbIn  = Input(new ControlSignals)
 
 
-     val PCOut             = Output(UInt(32.W))
-     val aluOpOut          = Output(UInt(4.W))
-     val controlSignalsOut = Output(new ControlSignals)
-     val branchTypeOut     = Output(UInt(3.W))
-     val op1SelectOut      = Output(UInt(1.W))
-     val op2SelectOut      = Output(UInt(1.W))
-     val immTypeOut        = Output(UInt(3.W))
-     // val val1Out           = Output(UInt(32.W))
-     val val2Out           = Output(UInt(32.W))
-     val instructionOut    = Output(new Instruction)
-     val immediateOut      = Output(UInt(32.W))
-     val ALUres            = Output(UInt(32.W))
-     val takeBranch        = Output(Bool())
-     val freezeOut         = Output(Bool())
+      val PCOut             = Output(UInt(32.W))
+      val aluOpOut          = Output(UInt(4.W))
+      val controlSignalsOut = Output(new ControlSignals)
+      val branchTypeOut     = Output(UInt(3.W))
+      val op1SelectOut      = Output(UInt(1.W))
+      val op2SelectOut      = Output(UInt(1.W))
+      val immTypeOut        = Output(UInt(3.W))
+      // val val1Out           = Output(UInt(32.W))
+      val val2Out           = Output(UInt(32.W))
+      val instructionOut    = Output(new Instruction)
+      val immediateOut      = Output(UInt(32.W))
+      val ALUres            = Output(UInt(32.W))
+      val takeBranch        = Output(Bool())
+      val freezeOut         = Output(Bool())
 
 
      // val inWriteAddress = Input(UInt(32.W))
@@ -81,6 +83,8 @@ class Execute extends MultiIOModule {
   forwarder.memResWbIn        := io.memResWbIn
   forwarder.aluResMemIn       := io.aluResMemIn
   forwarder.val2MemIn         := io.val2MemIn
+  forwarder.controlSignalsMemIn := io.controlSignalsMemIn
+  forwarder.controlSignalsWbIn  := io.controlSignalsWbIn
 
   forwarder.val1In := io.val1In
   forwarder.val2In := io.val2In

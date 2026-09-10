@@ -26,6 +26,7 @@ class InstructionFetch extends MultiIOModule {
       val newPC = Input(UInt(32.W))
       val controlSignalsIn = Input(new ControlSignals)
       val takeBranchIn = Input(Bool())
+      val freezeIn = Input(Bool())
       
       val PC = Output(UInt(32.W))
       val instruction = Output(new Instruction)
@@ -52,12 +53,15 @@ class InstructionFetch extends MultiIOModule {
 
   val newPC = Wire(UInt(32.W))
   newPC := io.newPC
-  when ((io.controlSignalsIn.branch && io.takeBranchIn) || io.controlSignalsIn.jump) {
-    PC := newPC
+  when (io.freezeIn)  {
+    PC := PC
   } .otherwise {
-    PC := PC + 4.U
+    when ((io.controlSignalsIn.branch && io.takeBranchIn) || io.controlSignalsIn.jump) {
+      PC := newPC
+    } .otherwise {
+      PC := PC + 4.U
+    }
   }
-
   val instruction = Wire(new Instruction)
   instruction := io.instruction
   io.instruction := IMEM.io.instruction.asTypeOf(new Instruction)

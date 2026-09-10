@@ -29,6 +29,7 @@ class EXBarrier extends MultiIOModule {
       val instructionIn = Input(new Instruction)
       val controlSignalsIn = Input(new ControlSignals)
       val takeBranchIn = Input(Bool())
+      val freezeIn         = Input(Bool())
 
       val PCOut = Output(UInt(32.W))
       val aluResOut = Output(UInt(32.W))
@@ -49,7 +50,11 @@ class EXBarrier extends MultiIOModule {
   regPC := io.PCIn
   result := io.resultIn
   op2 := io.val2In
+  when (io.freezeIn) {
+    instruction := Instruction.NOP
+  } .otherwise {
   instruction := io.instructionIn
+  }
   regControlSignals := io.controlSignalsIn
   takeBranch := io.takeBranchIn
   
@@ -57,6 +62,7 @@ class EXBarrier extends MultiIOModule {
   io.aluResOut := result
   io.dataAddressOut := op2
   io.instructionOut := instruction
+     // combinatorial loop -> check why because it should be good to use the instruction here 
   io.controlSignalsOut := regControlSignals
   io.takeBranchOut := takeBranch
   

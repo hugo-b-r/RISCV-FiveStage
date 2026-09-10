@@ -27,7 +27,6 @@ class MEMBarrier extends MultiIOModule {
       val readDataIn       = Input(UInt(32.W))
       val instructionIn    = Input(new Instruction)
       val controlSignalsIn = Input(new ControlSignals)
-      val freezeIn         = Input(Bool())
 
       val ALUresOut         = Output(UInt(32.W))
       val readDataOut       = Output(UInt(32.W))
@@ -49,12 +48,7 @@ class MEMBarrier extends MultiIOModule {
 
   
   // regData := io.readDataIn
-  when (io.freezeIn) {
-    // instruction := 0.U.asTypeOf(new Instruction)
-    instruction := Instruction.NOP
-  } .otherwise {
-    instruction := io.instructionIn
-  }
+  instruction := io.instructionIn
   controlSignals := io.controlSignalsIn
   aluRes := io.ALUresIn
 

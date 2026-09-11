@@ -34,6 +34,7 @@ class InstructionFetch extends MultiIOModule {
 
   val IMEM = Module(new IMEM)
   val PC   = RegInit(UInt(32.W), 0.U)
+  val prevPC = RegInit(UInt(32.W), 0.U)
 
 
   /**
@@ -48,16 +49,19 @@ class InstructionFetch extends MultiIOModule {
     * 
     * You should expand on or rewrite the code below.
     */
-  io.PC := PC
-  IMEM.io.instructionAddress := PC
+  prevPC := PC
+  when (io.freezeIn) {
+    io.PC := prevPC
+  } .otherwise {
+    io.PC := PC
+  }
+  IMEM.io.instructionAddress := io.PC
 
-  val newPC = Wire(UInt(32.W))
-  newPC := io.newPC
   when (io.freezeIn)  {
     PC := PC
   } .otherwise {
     when ((io.controlSignalsIn.branch && io.takeBranchIn) || io.controlSignalsIn.jump) {
-      PC := newPC
+      PC := io.newPC
     } .otherwise {
       PC := PC + 4.U
     }

@@ -34,11 +34,11 @@ class IFBarrier extends MultiIOModule {
 
   val regPC = RegInit(0.U(32.W))
 
-  when (io.freezeIn) {
-    regPC := regPC
-  } .otherwise {
+  // when (io.freezeIn) {
+    // regPC := regPC
+  // } .otherwise {
     regPC := io.PCIn
-  }
+  // }
 
   io.PCOut := regPC
 

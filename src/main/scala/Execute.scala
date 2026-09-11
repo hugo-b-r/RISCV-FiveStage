@@ -157,6 +157,6 @@ class Execute extends MultiIOModule {
   io.op1SelectOut      := io.op1SelectIn  
   io.op2SelectOut      := io.op2SelectIn
   io.immTypeOut        := io.immTypeIn
-  io.val2Out           := io.val2In
+  io.val2Out           := forwarder.aluOp2Out
   io.immediateOut      := io.immediateIn
 }

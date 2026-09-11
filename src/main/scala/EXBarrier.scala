@@ -52,10 +52,11 @@ class EXBarrier extends MultiIOModule {
   op2 := io.val2In
   when (io.freezeIn) {
     instruction := Instruction.NOP
+    regControlSignals := 0.U.asTypeOf(new ControlSignals)
   } .otherwise {
-  instruction := io.instructionIn
+    instruction := io.instructionIn
+    regControlSignals := io.controlSignalsIn
   }
-  regControlSignals := io.controlSignalsIn
   takeBranch := io.takeBranchIn
   
   io.PCOut := regPC

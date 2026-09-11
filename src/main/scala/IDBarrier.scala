@@ -106,9 +106,9 @@ class IDBarrier extends MultiIOModule {
 
 
 
-  val aluOpReg = RegInit(0.U(32.W))
-  aluOpReg := io.aluOpIn
-  io.aluOpOut := aluOpReg
+  // val aluOpReg = RegInit(0.U(32.W))
+  // aluOpReg := io.aluOpIn
+  // io.aluOpOut := aluOpReg
 
   // /**
   //   * Setup. You should not change this code

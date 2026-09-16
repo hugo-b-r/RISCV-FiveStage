@@ -31,7 +31,7 @@ class Forwarder() extends MultiIOModule {
 
       val aluOp1Out = Output(UInt(32.W))
       val aluOp2Out = Output(UInt(32.W))
-      val freezeOut = Output(Bool())
+      // val freezeOut = Output(Bool())
 
       val dbg1 = Output(UInt(32.W))
       val dbg2 = Output(UInt(32.W))
@@ -83,24 +83,24 @@ class Forwarder() extends MultiIOModule {
     }
 
     
-    val opcode = Wire(UInt(32.W))
-    opcode := io.instructionMemIn.opcode
-    dontTouch(opcode)
+    // val opcode = Wire(UInt(32.W))
+    // opcode := io.instructionMemIn.opcode
+    // dontTouch(opcode)
 
-    val freezeWire = Wire(Bool())
-    val freezeReg = Reg(Bool())
-    dontTouch(freezeWire)
-    when(io.controlSignalsMemIn.memRead
-    && (io.rdAddressMemIn === io.rs1AddressExIn
-      || io.rdAddressMemIn === io.rs2AddressExIn
-    )) {
-      freezeWire := true.B
-      // freezeWire := true.B
-    } .otherwise {
-      freezeWire := false.B
-    }
-    freezeReg := freezeWire
-    io.freezeOut := freezeWire
-    // println(io.instructionMemIn.opcode)
+    // val freezeWire = Wire(Bool())
+    // val freezeReg = Reg(Bool())
+    // dontTouch(freezeWire)
+    // when(io.controlSignalsMemIn.memRead
+    // && (io.rdAddressMemIn === io.rs1AddressExIn
+    //   || io.rdAddressMemIn === io.rs2AddressExIn
+    // )) {
+    //   freezeWire := true.B
+    //   // freezeWire := true.B
+    // } .otherwise {
+    //   freezeWire := false.B
+    // }
+    // freezeReg := freezeWire
+    // io.freezeOut := freezeWire
+    // // println(io.instructionMemIn.opcode)
       
 }

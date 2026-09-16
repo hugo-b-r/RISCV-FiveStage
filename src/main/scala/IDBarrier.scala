@@ -65,55 +65,45 @@ class IDBarrier extends MultiIOModule {
   val instruction         = RegInit(0.U.asTypeOf(new Instruction))
 
   when (io.freezeIn) {
-    regPC                  := regPC
-    regAluOp               := regAluOp
-    regControlSignals      := regControlSignals
-    branchType             := branchType
-    op1Select              := op1Select
-    op2Select              := op2Select
-    immType                := immType
-    immediate              := immediate
-    instruction            := instruction
-    nbBubblesInserted      := nbBubblesInserted
-  } .elsewhen(io.branchTakenIn || (nbBubblesInserted < NB_BUBBLES_INS_BRANCH && nbBubblesInserted > 0.U)) {
-    regPC                  := io.PCIn
-    regAluOp               := ALUOps.DC
-    regControlSignals      := ControlSignals.nop
-    branchType             := 7.asUInt(3.W)
-    op1Select              := Op1Select.DC
-    op2Select              := Op2Select.DC
-    immType                := ImmFormat.DC
-    immediate              := 0.U
-    instruction            := Instruction.NOP
-    nbBubblesInserted      := nbBubblesInserted+1.U
-    
-  } .elsewhen(nbBubblesInserted === NB_BUBBLES_INS_BRANCH) {
-    regPC                  := io.PCIn
     regAluOp               := ALUOps.DC
     regControlSignals      := 0.U.asTypeOf(new ControlSignals)
     branchType             := 7.asUInt(3.W)
     op1Select              := Op1Select.DC
     op2Select              := Op2Select.DC
-    immType                := ImmFormat.DC
-    immediate              := 0.U
+    instruction            := Instruction.NOP
+    nbBubblesInserted      := nbBubblesInserted
+  } .elsewhen(io.branchTakenIn || (nbBubblesInserted < NB_BUBBLES_INS_BRANCH && nbBubblesInserted > 0.U)) {
+    regAluOp               := ALUOps.DC
+    regControlSignals      := ControlSignals.nop
+    branchType             := 7.asUInt(3.W)
+    op1Select              := Op1Select.DC
+    op2Select              := Op2Select.DC
+    instruction            := Instruction.NOP
+    nbBubblesInserted      := nbBubblesInserted+1.U
+    
+  } .elsewhen(nbBubblesInserted === NB_BUBBLES_INS_BRANCH) {
+    regAluOp               := ALUOps.DC
+    regControlSignals      := 0.U.asTypeOf(new ControlSignals)
+    branchType             := 7.asUInt(3.W)
+    op1Select              := Op1Select.DC
+    op2Select              := Op2Select.DC
     instruction            := Instruction.NOP
     nbBubblesInserted      := 0.U
     
   } .otherwise {
-    regPC                  := io.PCIn
     regAluOp               := io.aluOpIn
     regControlSignals      := io.controlSignalsIn
     branchType             := io.branchTypeIn
     op1Select              := io.op1SelectIn
     op2Select              := io.op2SelectIn
-    immType                := io.immTypeIn
-    immediate              := io.immediateIn
     instruction            := io.instructionIn
   }
+  regPC                  := io.PCIn
   val1                   := io.val1In
   val2                   := io.val2In
-
-  
+  immType                := io.immTypeIn
+  immediate              := io.immediateIn
+ 
   io.PCOut               := regPC
   io.aluOpOut            := regAluOp
   io.controlSignalsOut   := regControlSignals

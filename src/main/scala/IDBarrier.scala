@@ -36,6 +36,7 @@ class IDBarrier extends MultiIOModule {
      val immediateIn      = Input(UInt(32.W))
      val freezeIn         = Input(Bool())
      val branchTakenIn    = Input(Bool())
+     val insertBubbles    = Input(Bool())
      
 
      val PCOut             = Output(UInt(32.W))
@@ -49,6 +50,7 @@ class IDBarrier extends MultiIOModule {
      val val2Out           = Output(UInt(32.W))
      val instructionOut    = Output(new Instruction)
      val immediateOut      = Output(UInt(32.W))
+
     }
   )
   val nbBubblesInserted   = RegInit(0.U(2.W))
@@ -72,9 +74,9 @@ class IDBarrier extends MultiIOModule {
     op2Select              := Op2Select.DC
     instruction            := Instruction.NOP
     nbBubblesInserted      := nbBubblesInserted
-  } .elsewhen(io.branchTakenIn || (nbBubblesInserted < NB_BUBBLES_INS_BRANCH && nbBubblesInserted > 0.U)) {
+  } .elsewhen(io.insertBubbles || (nbBubblesInserted < NB_BUBBLES_INS_BRANCH && nbBubblesInserted > 0.U)) {
     regAluOp               := ALUOps.DC
-    regControlSignals      := ControlSignals.nop
+    regControlSignals      := 0.U.asTypeOf(new ControlSignals)
     branchType             := 7.asUInt(3.W)
     op1Select              := Op1Select.DC
     op2Select              := Op2Select.DC

@@ -107,7 +107,7 @@ class Execute extends MultiIOModule {
     ALU.op2 := 0.U
   }
 
-  when (!io.controlSignalsIn.branch) {
+  when (!io.controlSignalsIn.branch && !io.controlSignalsIn.jump) {
     io.takeBranch := false.B
   } .otherwise {
     when (io.branchTypeIn === branchType.beq) {
@@ -122,6 +122,8 @@ class Execute extends MultiIOModule {
       io.takeBranch := ALU.aluResult.asUInt < 0.U
     } .elsewhen(io.branchTypeIn === branchType.gteu) {
       io.takeBranch := ALU.aluResult.asUInt >= 0.U
+    } .elsewhen(io.branchTypeIn === branchType.jump) {
+      io.takeBranch := true.B
     } .otherwise {
       io.takeBranch := false.B
     }

@@ -27,6 +27,7 @@ class InstructionFetch extends MultiIOModule {
       val controlSignalsIn = Input(new ControlSignals)
       val takeBranchIn = Input(Bool())
       val freezeIn = Input(Bool())
+      val insertBubbles = Input(Bool())
       
       val PC = Output(UInt(32.W))
       val instruction = Output(new Instruction)
@@ -57,18 +58,22 @@ class InstructionFetch extends MultiIOModule {
   }
   IMEM.io.instructionAddress := io.PC
 
-  when (io.freezeIn)  {
-    PC := PC
+  when ((io.controlSignalsIn.branch && io.takeBranchIn) || io.controlSignalsIn.jump) {
+    PC := io.newPC
   } .otherwise {
-    when ((io.controlSignalsIn.branch && io.takeBranchIn) || io.controlSignalsIn.jump) {
-      PC := io.newPC
+    when (io.freezeIn)  {
+      PC := PC
     } .otherwise {
       PC := PC + 4.U
     }
   }
   val instruction = Wire(new Instruction)
   instruction := io.instruction
-  io.instruction := IMEM.io.instruction.asTypeOf(new Instruction)
+  when (io.insertBubbles) {
+    io.instruction := Instruction.NOP
+  }.otherwise {
+    io.instruction := IMEM.io.instruction.asTypeOf(new Instruction)
+  }
 
 
   /**

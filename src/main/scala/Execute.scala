@@ -37,10 +37,8 @@ class Execute extends MultiIOModule {
       val instructionMemIn    = Input(new Instruction)
       val rdAddressMemIn      = Input(UInt(5.W))
       val rdAddressWbIn       = Input(UInt(5.W))
-      val aluValWbIn          = Input(UInt(32.W))
-      val memResWbIn          = Input(UInt(32.W))
-      val aluResMemIn         = Input(UInt(32.W))
-      val val2MemIn           = Input(UInt(32.W))
+      val wbValIn             = Input(UInt(32.W))
+      val memValIn            = Input(UInt(32.W))
       val controlSignalsMemIn = Input(new ControlSignals)
       val controlSignalsWbIn  = Input(new ControlSignals)
 
@@ -79,10 +77,9 @@ class Execute extends MultiIOModule {
   forwarder.rdAddressWbIn     := io.rdAddressWbIn
   forwarder.rs1AddressExIn    := io.instructionIn.registerRs1
   forwarder.rs2AddressExIn    := io.instructionIn.registerRs2
-  forwarder.aluValWbIn        := io.aluValWbIn
-  forwarder.memResWbIn        := io.memResWbIn
-  forwarder.aluResMemIn       := io.aluResMemIn
-  forwarder.val2MemIn         := io.val2MemIn
+  forwarder.wbValIn           := io.wbValIn
+  forwarder.memValIn          := io.memValIn
+  forwarder.controlSignalsIn  := io.controlSignalsIn
   forwarder.controlSignalsMemIn := io.controlSignalsMemIn
   forwarder.controlSignalsWbIn  := io.controlSignalsWbIn
 

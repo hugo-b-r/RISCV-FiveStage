@@ -141,9 +141,9 @@ class Execute extends MultiIOModule {
   io.instructionOut := instructionWire
 
   // handling PC operations
-  when(io.controlSignalsIn.jump && io.immTypeIn === ImmFormat.ITYPE) { 
+  when(io.controlSignalsIn.jump && io.immTypeIn === ImmFormat.ITYPE) { // JALR
     // use the readValue 1 to create the next PC value
-    io.PCOut := io.val1In + io.immediateIn
+    io.PCOut := (forwarder.aluOp1Out + io.immediateIn) & "hfffffffe".U
   } .elsewhen (io.controlSignalsIn.jump || io.controlSignalsIn.branch)  {
     io.PCOut := io.PCIn + io.immediateIn
   } .otherwise {

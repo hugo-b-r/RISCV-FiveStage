@@ -109,3 +109,8 @@ class Decoder() extends Module {
   io.immType    := decodedControlSignals(8)
   io.ALUop      := decodedControlSignals(9)
 }
+
+object Decoder extends App {
+  chisel3.Driver.execute(args, () => new Decoder)
+  // ChiselStage.emitSystemVerilog(new Tile(), Array("--target-dir", "generated"))
+}

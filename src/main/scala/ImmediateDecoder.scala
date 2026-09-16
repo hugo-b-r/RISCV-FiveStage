@@ -33,3 +33,10 @@ class ImmediateDecoder() extends Module {
   )
 
 }
+
+
+
+object ImmediateDecoder extends App {
+  chisel3.Driver.execute(args, () => new ImmediateDecoder)
+  // ChiselStage.emitSystemVerilog(new Tile(), Array("--target-dir", "generated"))
+}

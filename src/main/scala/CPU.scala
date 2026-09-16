@@ -116,6 +116,9 @@ class CPU extends MultiIOModule {
   IF.io.controlSignalsIn := EXBarrier.controlSignalsOut
   IF.io.newPC := EXBarrier.PCOut
   IF.io.takeBranchIn := EXBarrier.takeBranchOut
+
+  IFBarrier.branchTakenIn := EXBarrier.takeBranchOut
+  IDBarrier.branchTakenIn := EXBarrier.takeBranchOut
     
   ID.io.delayedControlSignals := MEMBarrier.controlSignalsOut
   when (MEMBarrier.controlSignalsOut.memRead) {

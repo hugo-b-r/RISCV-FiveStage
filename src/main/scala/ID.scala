@@ -22,7 +22,9 @@ class InstructionDecode extends MultiIOModule {
      val PCIn                  = Input(UInt(32.W))
      val delayedControlSignals = Input(new ControlSignals)
      val delayedWriteData      = Input(UInt(32.W))
-     val delayedInstruction   = Input(new Instruction)
+     val delayedInstruction    = Input(new Instruction)
+     val controlSignalsExIn    = Input(new ControlSignals)
+     val rdAddressExIn         = Input(UInt(5.W))
      
      val PCOut             = Output(UInt(32.W))
      val aluOpOut          = Output(UInt(4.W))
@@ -35,6 +37,7 @@ class InstructionDecode extends MultiIOModule {
      val val2Out           = Output(UInt(32.W))
      val instructionOut    = Output(new Instruction)
      val immediateOut      = Output(UInt(32.W))
+     val freezeOut        = Output(Bool())
     
      // val inWriteAddress = Input(UInt(32.W))
      // val inWriteData = Input(UInt(32.W))
@@ -89,6 +92,8 @@ class InstructionDecode extends MultiIOModule {
     io.val2Out := registers.io.readData2
   }
 
+  io.freezeOut := io.controlSignalsExIn.memRead && (io.rdAddressExIn === io.instructionIn.registerRs1 || io.rdAddressExIn === io.instructionIn.registerRs2)
+  
   decoder.instruction := io.instructionIn
   io.instructionOut := io.instructionIn
 

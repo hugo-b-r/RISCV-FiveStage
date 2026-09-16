@@ -24,7 +24,7 @@ class IFBarrier extends MultiIOModule {
   val io = IO(
     new Bundle {
       val PCIn = Input(UInt(32.W))
-      val freezeIn = Input(Bool())
+      // val freezeIn = Input(Bool())
       val instructionIn = Input(new Instruction)
       val branchTakenIn = Input(Bool())
 

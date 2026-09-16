@@ -56,7 +56,7 @@ class Execute extends MultiIOModule {
       val immediateOut      = Output(UInt(32.W))
       val ALUres            = Output(UInt(32.W))
       val takeBranch        = Output(Bool())
-      val freezeOut         = Output(Bool())
+      // val freezeOut         = Output(Bool())
 
 
      // val inWriteAddress = Input(UInt(32.W))
@@ -86,7 +86,7 @@ class Execute extends MultiIOModule {
   forwarder.val1In := io.val1In
   forwarder.val2In := io.val2In
 
-  io.freezeOut := forwarder.freezeOut
+  // io.freezeOut := forwarder.freezeOut
 
   when (io.op1SelectIn === Op1Select.rs1) {
     ALU.op1 := forwarder.aluOp1Out

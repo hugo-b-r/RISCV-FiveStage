@@ -18,7 +18,7 @@ class IDBarrier extends MultiIOModule {
   //   }
   // )
 
-
+  val NB_BUBBLES_INS_BRANCH = 2.U
 
 
   val io = IO(
@@ -51,7 +51,7 @@ class IDBarrier extends MultiIOModule {
      val immediateOut      = Output(UInt(32.W))
     }
   )
-
+  val nbBubblesInserted   = RegInit(0.U(2.W))
   val regPC               = RegInit(0.U(32.W))
   val regAluOp            = RegInit(0.U(4.W))
   val regControlSignals   = RegInit(0.U.asTypeOf(new ControlSignals))
@@ -72,11 +72,10 @@ class IDBarrier extends MultiIOModule {
     op1Select              := op1Select
     op2Select              := op2Select
     immType                := immType
-    val1                   := val1
-    val2                   := val2
     immediate              := immediate
     instruction            := instruction
-  } .elsewhen(io.branchTakenIn) {
+    nbBubblesInserted      := nbBubblesInserted
+  } .elsewhen(io.branchTakenIn || (nbBubblesInserted < NB_BUBBLES_INS_BRANCH && nbBubblesInserted > 0.U)) {
     regPC                  := io.PCIn
     regAluOp               := ALUOps.DC
     regControlSignals      := ControlSignals.nop
@@ -84,10 +83,21 @@ class IDBarrier extends MultiIOModule {
     op1Select              := Op1Select.DC
     op2Select              := Op2Select.DC
     immType                := ImmFormat.DC
-    val1                   := 0.U
-    val2                   := 0.U
     immediate              := 0.U
     instruction            := Instruction.NOP
+    nbBubblesInserted      := nbBubblesInserted+1.U
+    
+  } .elsewhen(nbBubblesInserted === NB_BUBBLES_INS_BRANCH) {
+    regPC                  := io.PCIn
+    regAluOp               := ALUOps.DC
+    regControlSignals      := 0.U.asTypeOf(new ControlSignals)
+    branchType             := 7.asUInt(3.W)
+    op1Select              := Op1Select.DC
+    op2Select              := Op2Select.DC
+    immType                := ImmFormat.DC
+    immediate              := 0.U
+    instruction            := Instruction.NOP
+    nbBubblesInserted      := 0.U
     
   } .otherwise {
     regPC                  := io.PCIn
@@ -97,11 +107,11 @@ class IDBarrier extends MultiIOModule {
     op1Select              := io.op1SelectIn
     op2Select              := io.op2SelectIn
     immType                := io.immTypeIn
-    val1                   := io.val1In
-    val2                   := io.val2In
     immediate              := io.immediateIn
     instruction            := io.instructionIn
   }
+  val1                   := io.val1In
+  val2                   := io.val2In
 
   
   io.PCOut               := regPC

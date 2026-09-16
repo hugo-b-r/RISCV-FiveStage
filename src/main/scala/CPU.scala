@@ -119,6 +119,7 @@ class CPU extends MultiIOModule {
 
   IFBarrier.branchTakenIn := EXBarrier.takeBranchOut
   IDBarrier.branchTakenIn := EXBarrier.takeBranchOut
+  IDBarrier.freezeIn      := ID.io.freezeOut
     
   ID.io.delayedControlSignals := MEMBarrier.controlSignalsOut
   when (MEMBarrier.controlSignalsOut.memRead) {
@@ -129,6 +130,9 @@ class CPU extends MultiIOModule {
     EX.io.wbValIn          := MEMBarrier.ALUresOut
   }
   ID.io.delayedInstruction := MEMBarrier.instructionOut
+  ID.io.controlSignalsExIn := EX.io.controlSignalsIn
+  ID.io.rdAddressExIn      := EX.io.instructionIn.registerRd
+
 
   EX.io.instructionMemIn    := EXBarrier.instructionOut
   EX.io.rdAddressMemIn      := EXBarrier.instructionOut.registerRd
@@ -137,10 +141,10 @@ class CPU extends MultiIOModule {
   EX.io.controlSignalsMemIn := MEM.io.controlSignalsOut
   EX.io.controlSignalsWbIn  := MEMBarrier.controlSignalsOut
   
-  IF.io.freezeIn      := EX.io.freezeOut
-  IFBarrier.freezeIn  := EX.io.freezeOut
-  IDBarrier.freezeIn  := EX.io.freezeOut
-  EXBarrier.freezeIn := EX.io.freezeOut
+  IF.io.freezeIn      := ID.io.freezeOut
+  // IFBarrier.freezeIn  := EX.io.freezeOut
+  // IDBarrier.freezeIn  := EX.io.freezeOut
+  // EXBarrier.freezeIn := EX.io.freezeOut
 
   // WB
   

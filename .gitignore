@@ -353,3 +353,10 @@ target/
 scratchpad.scala
 log/
 index.html
+
+*.v
+*.dig
+*.svg
+
+project/
+waveforms/

@@ -38,6 +38,14 @@ class InstructionDecode extends MultiIOModule {
      val instructionOut    = Output(new Instruction)
      val immediateOut      = Output(UInt(32.W))
      val freezeOut        = Output(Bool())
+
+     // val address_prediction = Input(UInt(32.W))
+     // val predicted_taken = Output(Bool())
+     // val target_address  = Output(UInt(32.W))
+     // val address_update = Input(UInt(32.W))
+     // val update_branch_predictor = Input(Bool())
+     // val taken_update = Input(Bool())
+     
     
      // val inWriteAddress = Input(UInt(32.W))
      // val inWriteData = Input(UInt(32.W))
@@ -50,6 +58,7 @@ class InstructionDecode extends MultiIOModule {
   val registers = Module(new Registers)
   val decoder   = Module(new Decoder).io
   val immediateDecoder = Module(new ImmediateDecoder).io
+  // val branchPredictor  = Module(new BranchPredictor(10)).io
 
 
   /**
@@ -99,11 +108,18 @@ class InstructionDecode extends MultiIOModule {
 
   io.PCOut := io.PCIn
 
-  io.aluOpOut := decoder.ALUop
 
   immediateDecoder.instruction := io.instructionIn
   immediateDecoder.immType := decoder.immType
   io.immediateOut := immediateDecoder.immediate
+
+
+
+  // branchPredictor.address_prediction := io.PCIn
+  // io.predicted_taken := branchPredictor.predicted_taken
+  // branchPredictor.address_update := io.address_update
+  // branchPredictor.update := io.update_branch_predictor
+  // branchPredictor.taken_update := io.taken_update
 
   dontTouch(io.PCIn)
   dontTouch(io.PCOut)

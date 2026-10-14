@@ -19,7 +19,7 @@ import LogParser._
 
 object Manifest {
 
-  val singleTest = "palindromeO3.s"
+  val singleTest = "BTreeO3.s"
 
   val nopPadded = false
 
@@ -125,3 +125,9 @@ class AllTestsWindows extends FlatSpec with Matchers {
     }
   }
 }
+
+// class BranchPredictorTest extends FlatSpec with Matchers {
+//   it shoud "just werk" in {
+    
+//   }
+// }

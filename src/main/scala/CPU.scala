@@ -143,6 +143,9 @@ class CPU extends MultiIOModule {
   EX.io.memValIn            := MEM.io.aluResOut
   EX.io.controlSignalsMemIn := MEM.io.controlSignalsOut
   EX.io.controlSignalsWbIn  := MEMBarrier.controlSignalsOut
+
+  // branch prediction
+  
   
   // IFBarrier.freezeIn  := EX.io.freezeOut
   // IDBarrier.freezeIn  := EX.io.freezeOut

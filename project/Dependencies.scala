@@ -21,6 +21,10 @@ object Dependencies {
       "org.tpolecat" %% "atto-core"    % "0.6.3",            // For parsing asm
       "org.tpolecat" %% "atto-refined" % "0.6.3",            // For parsing asm
 
+
+      "co.fs2" %% "fs2-core" % fs2Version,                   // The best library
+      "co.fs2" %% "fs2-io"   % fs2Version,                   // The best library
+
       "com.github.pathikrit" %% "better-files" % "3.7.0",
 
       "org.atnos" %% "eff" % "5.2.0",

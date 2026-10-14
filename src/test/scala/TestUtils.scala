@@ -97,6 +97,50 @@ object TestUtils {
   }
 
 
+  def wrapTester(test: => Unit): Unit = {
+    try { test }
+    catch {
+      case e: firrtl.passes.CheckInitialization.RefNotInitializedException => {
+        println("##########################################################")
+        println("##########################################################")
+        println("##########################################################")
+        println("Your design has unconnected wires!")
+        println("error:\n")
+        println(e.getMessage)
+        println("")
+        println("")
+        println("##########################################################")
+        println("##########################################################")
+        println("##########################################################")
+      }
+      case e: chisel3.core.Binding.ExpectedHardwareException => {
+        println("##########################################################")
+        println("##########################################################")
+        println("##########################################################")
+        println("Your design is using raw chisel types!")
+        println("error:\n")
+        println(e.getMessage)
+        println("")
+        println("")
+        println("This typically occurs when you forget to wrap a module")
+        println("e.g")
+        println("""
+class MyBundle extends Bundle {
+  val signal = UInt(32.W)
+}
+val mySignal = new MyBundle
+               ^^^^ Wrong!
+should be
+val mySignal = Wire(new MyBundle)
+""")
+        println("##########################################################")
+        println("##########################################################")
+        println("##########################################################")
+      }
+      case e: Exception => throw e
+    }
+  }
+
   /**
     * Generates a random program filled with hazards
    */

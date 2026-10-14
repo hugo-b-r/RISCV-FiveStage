@@ -67,3 +67,5 @@ addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.fu
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-eS")
 
 addCompilerPlugin("io.tryp" % "splain" % "0.4.1" cross CrossVersion.patch)
+
+cancelable in Global := true

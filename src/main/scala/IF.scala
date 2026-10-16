@@ -31,11 +31,18 @@ class InstructionFetch extends MultiIOModule {
       
       val PC = Output(UInt(32.W))
       val instruction = Output(new Instruction)
+
+      val address_update = Input(UInt(32.W))
+      val was_not_branch = Input(Bool())
+      val effective_target_address_update = Input(UInt(32.W))
+      val update_branch_predictor = Input(Bool())
+      val taken_update_branch_predictor = Input(Bool())
     })
 
   val IMEM = Module(new IMEM)
   val PC   = RegInit(UInt(32.W), 0.U)
   val prevPC = RegInit(UInt(32.W), 0.U)
+  val branchPredictor  = Module(new BranchPredictor(10)).io
 
 
   /**
@@ -64,7 +71,7 @@ class InstructionFetch extends MultiIOModule {
     when (io.freezeIn)  {
       PC := PC
     } .otherwise {
-      PC := PC + 4.U
+      PC := branchPredictor.target_address
     }
   }
   val instruction = Wire(new Instruction)
@@ -85,4 +92,13 @@ class InstructionFetch extends MultiIOModule {
   }
   dontTouch(io.PC)
   dontTouch(io.newPC)
+
+
+  
+  branchPredictor.address_prediction := io.PC
+  branchPredictor.address_update := io.address_update
+  branchPredictor.was_not_branch := io.was_not_branch 
+  branchPredictor.effective_target_address_update:= io.effective_target_address_update
+  branchPredictor.update := io.update_branch_predictor
+  branchPredictor.taken_update :=  io.taken_update_branch_predictor
 }

@@ -58,7 +58,6 @@ class InstructionDecode extends MultiIOModule {
   val registers = Module(new Registers)
   val decoder   = Module(new Decoder).io
   val immediateDecoder = Module(new ImmediateDecoder).io
-  // val branchPredictor  = Module(new BranchPredictor(10)).io
 
 
   /**
@@ -115,11 +114,6 @@ class InstructionDecode extends MultiIOModule {
 
 
 
-  // branchPredictor.address_prediction := io.PCIn
-  // io.predicted_taken := branchPredictor.predicted_taken
-  // branchPredictor.address_update := io.address_update
-  // branchPredictor.update := io.update_branch_predictor
-  // branchPredictor.taken_update := io.taken_update
 
   dontTouch(io.PCIn)
   dontTouch(io.PCOut)

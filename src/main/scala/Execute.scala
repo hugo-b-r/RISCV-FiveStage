@@ -56,14 +56,16 @@ class Execute extends MultiIOModule {
       val immediateOut      = Output(UInt(32.W))
       val ALUres            = Output(UInt(32.W))
       val takeBranch        = Output(Bool())
-      // val freezeOut         = Output(Bool())
+
+      // branch prediction
+      val addr_in_decode_stage            = Input(UInt(32.W))
+      val address_update                  = Output(UInt(32.W))
+      val was_not_branch                  = Output(Bool())
+      val effective_target_address_update = Output(UInt(32.W))
+      val update_branch_predictor         = Output(Bool())
+      val taken_update_branch_predictor   = Output(Bool())
 
 
-     // val inWriteAddress = Input(UInt(32.W))
-     // val inWriteData = Input(UInt(32.W))
-      /**
-        * TODO: Your code here.
-        */
     }
   )
 
@@ -108,25 +110,33 @@ class Execute extends MultiIOModule {
   }
 
   when (!io.controlSignalsIn.branch && !io.controlSignalsIn.jump) {
-    io.takeBranch := false.B
+    io.taken_update_branch_predictor := false.B
   } .otherwise {
     when (io.branchTypeIn === branchType.beq) {
-      io.takeBranch := ALU.aluResult === 0.U
+      io.taken_update_branch_predictor := ALU.aluResult === 0.U
     } .elsewhen(io.branchTypeIn === branchType.neq) {
-      io.takeBranch := ALU.aluResult =/= 0.U
+      io.taken_update_branch_predictor := ALU.aluResult =/= 0.U
     } .elsewhen(io.branchTypeIn === branchType.lt) {
-      io.takeBranch := ALU.aluResult.asSInt < 0.S
+      io.taken_update_branch_predictor := ALU.aluResult.asSInt < 0.S
     } .elsewhen(io.branchTypeIn === branchType.gte) {
-      io.takeBranch := ALU.aluResult.asSInt >= 0.S
+      io.taken_update_branch_predictor := ALU.aluResult.asSInt >= 0.S
     } .elsewhen(io.branchTypeIn === branchType.ltu) {
-      io.takeBranch := ALU.aluResult.asUInt < 0.U
+      io.taken_update_branch_predictor := ALU.aluResult.asUInt < 0.U
     } .elsewhen(io.branchTypeIn === branchType.gteu) {
-      io.takeBranch := ALU.aluResult.asUInt >= 0.U
+      io.taken_update_branch_predictor := ALU.aluResult.asUInt >= 0.U
     } .elsewhen(io.branchTypeIn === branchType.jump) {
-      io.takeBranch := true.B
+      io.taken_update_branch_predictor := true.B
     } .otherwise {
-      io.takeBranch := false.B
+      io.taken_update_branch_predictor := false.B
     }
+  }
+
+  when (io.addr_in_decode_stage =/= io.PCOut) {
+    // if not properly fetched, need to stall
+    io.takeBranch := io.taken_update_branch_predictor
+  } .otherwise {
+    // if the instruction has been correctly fetched, no need to stall
+    io.takeBranch := false.B
   }
 
   ALU.aluOp := io.aluOpIn
@@ -158,4 +168,11 @@ class Execute extends MultiIOModule {
   io.immTypeOut        := io.immTypeIn
   io.val2Out           := forwarder.aluOp2Out
   io.immediateOut      := io.immediateIn
+
+  // update at the index of the current instruction address
+  io.address_update                  := io.PCIn
+  io.was_not_branch                  := !io.controlSignalsIn.branch && !io.controlSignalsIn.jump
+  io.effective_target_address_update := io.PCOut
+  io.update_branch_predictor         := io.addr_in_decode_stage =/= io.PCOut || io.controlSignalsIn.branch || io.controlSignalsIn.jump
+
 }

@@ -119,6 +119,13 @@ class CPU extends MultiIOModule {
   IF.io.freezeIn          := ID.io.freezeOut
   IF.io.insertBubbles     := (EX.io.takeBranch && (IDBarrier.controlSignalsOut.branch || IDBarrier.controlSignalsOut.jump))
 
+  // branch prediction
+  IF.io.address_update                  := EX.io.address_update
+  IF.io.was_not_branch                  := EX.io.was_not_branch
+  IF.io.effective_target_address_update := EX.io.effective_target_address_update
+  IF.io.update_branch_predictor         := EX.io.update_branch_predictor
+  IF.io.taken_update_branch_predictor   := EX.io.taken_update_branch_predictor
+
   IFBarrier.branchTakenIn := EXBarrier.takeBranchOut
   IDBarrier.branchTakenIn := EXBarrier.takeBranchOut
   IDBarrier.freezeIn      := ID.io.freezeOut
@@ -137,12 +144,13 @@ class CPU extends MultiIOModule {
   ID.io.rdAddressExIn      := EX.io.instructionIn.registerRd
 
 
-  EX.io.instructionMemIn    := EXBarrier.instructionOut
-  EX.io.rdAddressMemIn      := EXBarrier.instructionOut.registerRd
-  EX.io.rdAddressWbIn       := MEMBarrier.instructionOut.registerRd
-  EX.io.memValIn            := MEM.io.aluResOut
-  EX.io.controlSignalsMemIn := MEM.io.controlSignalsOut
-  EX.io.controlSignalsWbIn  := MEMBarrier.controlSignalsOut
+  EX.io.instructionMemIn     := EXBarrier.instructionOut
+  EX.io.rdAddressMemIn       := EXBarrier.instructionOut.registerRd
+  EX.io.rdAddressWbIn        := MEMBarrier.instructionOut.registerRd
+  EX.io.memValIn             := MEM.io.aluResOut
+  EX.io.controlSignalsMemIn  := MEM.io.controlSignalsOut
+  EX.io.controlSignalsWbIn   := MEMBarrier.controlSignalsOut
+  EX.io.addr_in_decode_stage := ID.io.PCIn
 
   // branch prediction
   

@@ -9,10 +9,10 @@ import scala.io.AnsiColor._
 
 class BranchPredictorSpec extends FlatSpec with Matchers {
 
+  val m = 10
   import BranchPredictorTests._
-  it should "just work" in {
+  it should "just predict right taken not taken value" in {
     
-    val m = 10
 
     for (n <- 1 to 80) {
       print("#")
@@ -32,6 +32,13 @@ class BranchPredictorSpec extends FlatSpec with Matchers {
       }
     )
   }
+  it should "predict correct target address" in {
+    wrapTester(
+        chisel3.iotesters.Driver(() => new BranchPredictor(m)) { c =>
+          new test2(c)
+        } should be(true)
+    )
+  }
 }
 
 
@@ -46,15 +53,7 @@ object BranchPredictorTests {
     expect(c.io.predicted_taken, false.B)
 
     step(1)
-    poke(c.io.address_prediction, 1)
-    poke(c.io.address_update, 0)
-    poke(c.io.update, true.B)
-    poke(c.io.taken_update, true.B)
-    poke(c.io.was_not_branch, false.B)
-    expect(c.io.predicted_taken, false.B)
-
-    step(1)
-    poke(c.io.address_prediction, 1)
+    poke(c.io.address_prediction, 0)
     poke(c.io.address_update, 0)
     poke(c.io.update, true.B)
     poke(c.io.taken_update, true.B)
@@ -63,12 +62,77 @@ object BranchPredictorTests {
 
     step(1)
     poke(c.io.address_prediction, 0)
-    poke(c.io.address_update, 1)
+    poke(c.io.address_update, 0)
     poke(c.io.update, true.B)
     poke(c.io.taken_update, true.B)
     poke(c.io.was_not_branch, false.B)
+    expect(c.io.predicted_taken, false.B)
+
+    step(1)
+    poke(c.io.address_prediction, 0)
+    poke(c.io.address_update, 0)
+    poke(c.io.update, true.B)
+    poke(c.io.taken_update, false.B)
+    poke(c.io.was_not_branch, false.B)
     // step(1)
     expect(c.io.predicted_taken, true.B)
+
+    step(1)
+    poke(c.io.address_prediction, 0)
+    poke(c.io.address_update, 0)
+    poke(c.io.update, false.B)
+    poke(c.io.taken_update, false.B)
+    poke(c.io.was_not_branch, false.B)
+    // step(1)
+    expect(c.io.predicted_taken, false.B)
+  }
+
+
+  class test2(c: BranchPredictor) extends PeekPokeTester(c) {
+    poke(c.io.address_prediction, 0)
+    poke(c.io.address_update, 0)
+    poke(c.io.update, false.B)
+    poke(c.io.taken_update, false.B)
+    poke(c.io.was_not_branch, false.B)
+    expect(c.io.predicted_taken, false.B)
+    expect(c.io.target_address, 4.U)
+
+
+    step(1)
+    poke(c.io.update, true.B)
+    poke(c.io.taken_update, true.B)
+    poke(c.io.effective_target_address_update, 8)
+    expect(c.io.predicted_taken, false.B)
+    expect(c.io.target_address, 4.U)
+
+    step(1)
+    poke(c.io.address_prediction, 0)
+    poke(c.io.address_update, 0)
+    poke(c.io.update, true.B)
+    poke(c.io.taken_update, true.B)
+    poke(c.io.was_not_branch, false.B)
+    expect(c.io.predicted_taken, false.B)
+    expect(c.io.target_address, 4.U)
+
+    step(1)
+    poke(c.io.address_prediction, 0)
+    poke(c.io.address_update, 0)
+    poke(c.io.update, true.B)
+    poke(c.io.taken_update, false.B)
+    poke(c.io.was_not_branch, false.B)
+    // step(1)
+    expect(c.io.predicted_taken, true.B)
+    expect(c.io.target_address, 8.U)
+
+    step(1)
+    poke(c.io.address_prediction, 0)
+    poke(c.io.address_update, 0)
+    poke(c.io.update, false.B)
+    poke(c.io.taken_update, false.B)
+    poke(c.io.was_not_branch, false.B)
+    // step(1)
+    expect(c.io.predicted_taken, false.B)
+    expect(c.io.target_address, 4.U)
   }
 }
 

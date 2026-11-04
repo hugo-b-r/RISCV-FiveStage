@@ -42,7 +42,7 @@ class InstructionFetch extends MultiIOModule {
   val IMEM = Module(new IMEM)
   val PC   = RegInit(UInt(32.W), 0.U)
   val prevPC = RegInit(UInt(32.W), 0.U)
-  val branchPredictor  = Module(new BranchPredictor(10)).io
+  val branchPredictor  = Module(new BranchPredictor(7)).io
 
 
   /**
@@ -94,11 +94,19 @@ class InstructionFetch extends MultiIOModule {
   dontTouch(io.newPC)
 
 
-  
-  branchPredictor.address_prediction := io.PC
-  branchPredictor.address_update := io.address_update
-  branchPredictor.was_not_branch := io.was_not_branch 
-  branchPredictor.effective_target_address_update:= io.effective_target_address_update
-  branchPredictor.update := io.update_branch_predictor
-  branchPredictor.taken_update :=  io.taken_update_branch_predictor
+  when (testHarness.IMEMsetup.setup) {
+    branchPredictor.address_prediction := 0.U
+    branchPredictor.address_update := 0.U
+    branchPredictor.was_not_branch := true.B
+    branchPredictor.effective_target_address_update:= 0.U
+    branchPredictor.update := false.B
+branchPredictor.taken_update := false.B
+  } .otherwise {
+    branchPredictor.address_prediction := io.PC
+    branchPredictor.address_update := io.address_update
+    branchPredictor.was_not_branch := io.was_not_branch 
+    branchPredictor.effective_target_address_update:= io.effective_target_address_update
+    branchPredictor.update := io.update_branch_predictor
+    branchPredictor.taken_update :=  io.taken_update_branch_predictor
+  }
 }

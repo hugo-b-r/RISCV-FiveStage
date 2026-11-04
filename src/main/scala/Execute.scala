@@ -131,13 +131,30 @@ class Execute extends MultiIOModule {
     }
   }
 
-  when (io.addr_in_decode_stage =/= io.PCOut) {
-    // if not properly fetched, need to stall
-    io.takeBranch := io.taken_update_branch_predictor
-  } .otherwise {
-    // if the instruction has been correctly fetched, no need to stall
-    io.takeBranch := false.B
-  }
+
+
+  // the value for the next pc if the current instruction is a branch and its condition is verified
+  val pcValueIfBranchAndCondVerified = Wire(UInt(32.W))
+  // the value for the next pc if the current instruction is a branch
+  // val pcValueIfBranch = Wire(UInt(32.W))
+    when(io.controlSignalsIn.jump && io.immTypeIn === ImmFormat.ITYPE) { // JALR
+      // use the readValue 1 to create the next PC value
+      pcValueIfBranchAndCondVerified := (forwarder.aluOp1Out + io.immediateIn) & "hfffffffe".U
+    } .elsewhen (io.controlSignalsIn.jump || io.controlSignalsIn.branch)  {
+      pcValueIfBranchAndCondVerified := io.PCIn + io.immediateIn
+    } .otherwise {
+      pcValueIfBranchAndCondVerified := io.PCIn
+    }
+
+  io.takeBranch := io.addr_in_decode_stage =/= io.PCOut && io.PCIn > 8.U && (io.controlSignalsIn.branch || io.controlSignalsIn.jump) 
+  // when (io.addr_in_decode_stage =/= io.PCOut) {
+  //   // if not properly fetched, need to stall
+  //   io.takeBranch := io.taken_update_branch_predictor
+  // } .otherwise {
+  //   // if the instruction has been correctly fetched, no need to stall
+  //   io.takeBranch := false.B
+  // }
+  //
 
   ALU.aluOp := io.aluOpIn
 
@@ -151,13 +168,13 @@ class Execute extends MultiIOModule {
   io.instructionOut := instructionWire
 
   // handling PC operations
-  when(io.controlSignalsIn.jump && io.immTypeIn === ImmFormat.ITYPE) { // JALR
-    // use the readValue 1 to create the next PC value
-    io.PCOut := (forwarder.aluOp1Out + io.immediateIn) & "hfffffffe".U
-  } .elsewhen (io.controlSignalsIn.jump || io.controlSignalsIn.branch)  {
-    io.PCOut := io.PCIn + io.immediateIn
+  //
+  when (io.taken_update_branch_predictor) {
+    // branch
+    io.PCOut := pcValueIfBranchAndCondVerified
   } .otherwise {
-    io.PCOut := io.PCIn
+    // no branch
+    io.PCOut := io.PCIn + 4.U
   }
 
   io.aluOpOut          := io.aluOpIn

@@ -55,8 +55,10 @@ class CPU extends MultiIOModule {
   // IFBarrier first barrier
   IFBarrier.instructionIn := IF.io.instruction
   IFBarrier.PCIn := IF.io.PC
+  IFBarrier.instructionInNop := IF.io.instructionNop
 
-  
+
+  ID.io.instrInNop := IFBarrier.instructionOutNop
   ID.io.PCIn := IFBarrier.PCOut
   ID.io.instructionIn := IFBarrier.instructionOut
 
@@ -73,6 +75,7 @@ class CPU extends MultiIOModule {
   IDBarrier.val2In := ID.io.val2Out
   IDBarrier.immediateIn := ID.io.immediateOut
   IDBarrier.instructionIn := ID.io.instructionOut
+  IDBarrier.instructionInNop := ID.io.instrIsNop
 
 
   EX.io.PCIn := IDBarrier.PCOut
@@ -151,6 +154,7 @@ class CPU extends MultiIOModule {
   EX.io.controlSignalsMemIn  := MEM.io.controlSignalsOut
   EX.io.controlSignalsWbIn   := MEMBarrier.controlSignalsOut
   EX.io.addr_in_decode_stage := ID.io.PCIn
+  EX.io.instr_in_decode_nop  := ID.io.instrIsNop
 
   // branch prediction
   

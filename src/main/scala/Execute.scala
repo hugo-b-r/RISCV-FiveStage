@@ -65,6 +65,8 @@ class Execute extends MultiIOModule {
       val update_branch_predictor         = Output(Bool())
       val taken_update_branch_predictor   = Output(Bool())
 
+      val instr_in_decode_nop             = Input(Bool())
+
 
     }
   )
@@ -146,7 +148,7 @@ class Execute extends MultiIOModule {
       pcValueIfBranchAndCondVerified := io.PCIn
     }
 
-  io.takeBranch := io.addr_in_decode_stage =/= io.PCOut && io.PCIn > 8.U && (io.controlSignalsIn.branch || io.controlSignalsIn.jump) 
+  io.takeBranch := io.addr_in_decode_stage =/= io.PCOut && !io.instr_in_decode_nop && (io.controlSignalsIn.branch || io.controlSignalsIn.jump) 
   // when (io.addr_in_decode_stage =/= io.PCOut) {
   //   // if not properly fetched, need to stall
   //   io.takeBranch := io.taken_update_branch_predictor

@@ -33,6 +33,7 @@ class IDBarrier extends MultiIOModule {
      val val1In           = Input(UInt(32.W))
      val val2In           = Input(UInt(32.W))
      val instructionIn    = Input(new Instruction)
+     val instructionInNop = Input(Bool())
      val immediateIn      = Input(UInt(32.W))
      val freezeIn         = Input(Bool())
      val branchTakenIn    = Input(Bool())
@@ -49,6 +50,7 @@ class IDBarrier extends MultiIOModule {
      val val1Out           = Output(UInt(32.W))
      val val2Out           = Output(UInt(32.W))
      val instructionOut    = Output(new Instruction)
+     val instructionOutNop = Output(Bool())
      val immediateOut      = Output(UInt(32.W))
 
     }
@@ -144,6 +146,7 @@ class IDBarrier extends MultiIOModule {
   // testHarness.currentPC  := IF.testHarness.PC
 
 
+  io.instructionOutNop := io.instructionInNop
   /**
     TODO: Your code here
     */

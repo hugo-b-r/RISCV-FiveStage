@@ -31,6 +31,7 @@ class InstructionFetch extends MultiIOModule {
       
       val PC = Output(UInt(32.W))
       val instruction = Output(new Instruction)
+      val instructionNop = Output(Bool())
 
       val address_update = Input(UInt(32.W))
       val was_not_branch = Input(Bool())
@@ -65,7 +66,7 @@ class InstructionFetch extends MultiIOModule {
   }
   IMEM.io.instructionAddress := io.PC
 
-  when ((io.controlSignalsIn.branch && io.takeBranchIn) || io.controlSignalsIn.jump) {
+  when ((io.controlSignalsIn.branch || io.controlSignalsIn.jump) && io.takeBranchIn) {
     PC := io.newPC
   } .otherwise {
     when (io.freezeIn)  {
@@ -81,6 +82,11 @@ class InstructionFetch extends MultiIOModule {
   }.otherwise {
     io.instruction := IMEM.io.instruction.asTypeOf(new Instruction)
   }
+
+
+  // emit nops during setup as we don't want to use the circuit, only load data into memory
+  io.instructionNop := testHarness.IMEMsetup.setup
+
 
 
   /**

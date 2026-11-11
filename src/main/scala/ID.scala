@@ -37,7 +37,10 @@ class InstructionDecode extends MultiIOModule {
      val val2Out           = Output(UInt(32.W))
      val instructionOut    = Output(new Instruction)
      val immediateOut      = Output(UInt(32.W))
-     val freezeOut        = Output(Bool())
+     val freezeOut         = Output(Bool())
+     val instrInNop        = Input(Bool())
+     val instrIsNop        = Output(Bool())
+
 
      // val address_prediction = Input(UInt(32.W))
      // val predicted_taken = Output(Bool())
@@ -113,6 +116,8 @@ class InstructionDecode extends MultiIOModule {
   io.immediateOut := immediateDecoder.immediate
 
 
+
+  io.instrIsNop := io.instrInNop
 
 
   dontTouch(io.PCIn)

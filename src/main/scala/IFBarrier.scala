@@ -26,10 +26,14 @@ class IFBarrier extends MultiIOModule {
       val PCIn = Input(UInt(32.W))
       // val freezeIn = Input(Bool())
       val instructionIn = Input(new Instruction)
+      // whether we already have a nop before or not
+      val instructionInNop = Input(Bool())
       val branchTakenIn = Input(Bool())
 
       val PCOut = Output(UInt(32.W))
       val instructionOut = Output(new Instruction)
+
+      val instructionOutNop = Output(Bool())
     }
   )
 
@@ -43,10 +47,12 @@ class IFBarrier extends MultiIOModule {
 
   io.PCOut := regPC
 
+  io.instructionOutNop := io.instructionInNop
   val instructionWire = Wire(new Instruction)
   instructionWire :=  io.instructionIn
   when (io.branchTakenIn) {
     io.instructionOut := Instruction.NOP
+    io.instructionOutNop := true.B
   }.otherwise {
     io.instructionOut := instructionWire
   }
